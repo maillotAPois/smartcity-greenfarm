@@ -1,21 +1,24 @@
-# SmartCity GreenFarm
+# SmartCity GreenFarm -- Tycoon
 
-Dashboard web unifie pour ville intelligente.
+Jeu de gestion de ville intelligente (tycoon) ou le joueur gere 5 systemes interconnectes : Trafic, Energie, Securite, Dechets et GreenFarm.
 
-## Modules
+## Gameplay
 
-- **Core** -- Dashboard principal, authentification, KPIs globaux
-- **Trafic** -- Carte temps reel, congestion, incidents
-- **Energie** -- Consommation par quartier, pilotage eclairage
-- **Securite** -- Alertes, carte des incidents, surveillance
-- **Dechets** -- Conteneurs, tournees de collecte, qualite de l'air
-- **GreenFarm** -- Capteurs ferme urbaine, pilotage irrigation/ventilation
+- Construisez et ameliorez des batiments dans 5 modules
+- Gerez un budget avec revenus, depenses et prets
+- Progressez sur 50 niveaux avec deblocages progressifs
+- Reagissez a des evenements dynamiques (meteo, sociaux, infrastructure)
+- Exploitez les synergies cross-modules pour maximiser la satisfaction
+
+Voir [docs/GAME_SPEC.md](docs/GAME_SPEC.md) pour la specification complete.
 
 ## Stack
 
 | Couche | Technologie |
 |--------|-------------|
 | Frontend | React 18 + TypeScript + Vite + Tailwind CSS |
+| Rendu jeu | PixiJS v8 + @pixi/react (grille isometrique) |
+| State | Zustand (etat de jeu partage game loop / React) |
 | Backend | Node.js + Express + TypeScript |
 | Base de donnees | PostgreSQL + TimescaleDB |
 | Temps reel | WebSocket (Socket.io) |
@@ -41,24 +44,31 @@ cd backend && cp .env.example .env && npm install && npm run dev
 
 ```
 smartcity-greenfarm/
-├── frontend/               # React SPA
+├── frontend/
 │   └── src/
-│       ├── components/     # Composants partages
-│       ├── modules/        # traffic, energy, security, waste, greenfarm
-│       ├── hooks/
-│       ├── services/       # Appels API
-│       └── types/
+│       ├── game/
+│       │   ├── engine/         # GameLoop, GameClock, SimulationEngine, EventEngine
+│       │   ├── systems/        # Traffic, Energy, Security, Waste, Farm, Economy, Progression
+│       │   ├── state/          # Zustand store, types, selectors, actions
+│       │   ├── renderer/       # CityMap (PixiJS), MapRenderer, layers
+│       │   └── data/           # buildings, upgrades, events, crops, missions
+│       ├── modules/            # Panels par module (traffic, energy, security, waste, greenfarm)
+│       ├── components/
+│       │   ├── layout/         # TopBar, Sidebar, NotificationBar
+│       │   └── shared/         # KPICard, UpgradeTree, BudgetScreen, BuildMenu
+│       ├── hooks/              # useGameLoop, useGameState, useSocket
+│       └── services/           # API client, save/load
 ├── backend/
 │   └── src/
-│       ├── routes/
+│       ├── routes/             # auth, game, leaderboard
 │       ├── controllers/
-│       ├── models/
 │       ├── services/
-│       └── simulators/     # Generateurs de donnees IoT
-├── database/               # Migrations, seeds
-├── config/                 # Configuration simulateur
+│       ├── models/
+│       ├── middleware/         # auth JWT, validation Zod
+│       └── socket/            # Socket.io leaderboard temps reel
+├── database/                  # Migrations SQL (001-004)
 ├── docker-compose.yml
-└── .github/workflows/      # CI/CD
+└── .github/workflows/         # CI/CD
 ```
 
 ## Branches
